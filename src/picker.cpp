@@ -12,7 +12,12 @@ Picker::Picker()
         // 浏览器不停地触发selection changed事件，导致大开销
         if (!isPressed) {
             current_text = clipboard->text(QClipboard::Selection);
-            emit wordsPicked(current_text);
+            DEBUG << "button released:" << current_text << pre_text;
+            if (current_text != pre_text) {
+                DEBUG << "emit wordsPicked:" << current_text;
+                emit wordsPicked(current_text);
+                pre_text = current_text;
+            }
         }
     });
 

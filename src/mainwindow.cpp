@@ -29,6 +29,8 @@
 #include <QProcess>
 #include <QFile>
 #include <QTextStream>
+#include "QRegExp"
+#include "QRegExpValidator"
 #include "api/result.h"
 
 //using namespace tesseract;
@@ -256,6 +258,9 @@ void MainWindow::signalsAndSlots()
     connect(clipboard, &QClipboard::dataChanged,
             this, &MainWindow::getImageFromClipboard);
 
+    connect(clipboard, &QClipboard::dataChanged,
+            this, &MainWindow::getTextFromClipboard);
+
 //------Response the "float_button"
     // 文本被选中的时候显示悬浮按钮，但它不是一个按钮，实际上是一个悬浮的窗口。5s后自动消失
     //Show "float_button" when the selected text changed,it's not a button but a window in fact
@@ -326,6 +331,16 @@ void MainWindow::signalsAndSlots()
 
 void MainWindow::queryByMode()
 {
+    // default
+    float_browser->setVisible(false);
+    float_button->setVisible(false);
+    if(isWhiteSpace(this->src_word))
+    {
+        DEBUG << "\n 不显示悬浮框----" <<  this->src_word << "------"<<this->src_word.length();
+        button_time = 0;
+        return;
+    }
+    DEBUG << "\n 显示悬浮框----" <<  this->src_word << "------"<<this->src_word.length();
     // 自动翻译选项
     if (settings_window->setting_map->find("is_auto_translate").value() == "true")
     {
@@ -336,7 +351,7 @@ void MainWindow::queryByMode()
     if (settings_window->setting_map->find("is_selected").value() == "false") return;
 
     float_button->setVisible(true);
-    float_button->move(QCursor::pos().x() + 5, QCursor::pos().y() + 5);
+    float_button->move(QCursor::pos().x() + 10, QCursor::pos().y() + 10);
     button_time = startTimer(5000);
 }
 
@@ -348,7 +363,7 @@ void MainWindow::getImageFromClipboard()
     {
         return;
     }
-    INFO << "Clipboard changed";
+    INFO << "Clipboard changed"<<"text:"<<clipboard->text();
     QImage image = clipboard->image(QClipboard::Clipboard);
     if (image.isNull())
     {
@@ -550,9 +565,23 @@ void MainWindow::showSetting() {
     settings_window->show_options();
 }
 
+void MainWindow::getTextFromClipboard()
+{
+    INFO << "Clipboard changed"<<"text:"<<clipboard->text();
+    this->src_word = clipboard->text();
+    this->queryByMode();
+}
+
 void MainWindow::onWordsPicked(QString text)
 {
     this->src_word = text;
     DEBUG << "Text got:" << text;
     this->queryByMode();
 }
+
+bool MainWindow::isWhiteSpace(const QString & str)
+{
+     return QRegExp("\\s*").exactMatch(str);
+}
+
+

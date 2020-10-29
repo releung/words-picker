@@ -75,6 +75,7 @@ private:
     QHBoxLayout *layout_root;
     QVBoxLayout *layout_view, *layout_button;
     SettingsWindow *settings_window;
+    bool isWhiteSpace(const QString & str);
 
     // 定时器用于input内容被修改后，延迟进行自动查询
     // Timer for auto query once the content in the "input" changed
@@ -85,6 +86,7 @@ private slots:
     void closeEvent(QCloseEvent *event);
     void trayIconActived(QSystemTrayIcon::ActivationReason reason);
     void getImageFromClipboard();
+    void getTextFromClipboard();
 
 public slots:
     void onButtonPressed();
